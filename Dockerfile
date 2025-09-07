@@ -1,6 +1,6 @@
-FROM node:18
+FROM node:18-alpine
 
-WORKDIR /usr/src/app
+WORKDIR code
 
 COPY package*.json ./
 
@@ -10,4 +10,4 @@ COPY . .
 
 EXPOSE 8080
 
-CMD [ "node", "main.js" ]
+CMD [ "node", "index.js" ]

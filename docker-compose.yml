@@ -11,9 +11,30 @@ services:
     environment:
       POSTGRES_DB: ${DB_NAME}
       POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_PASSWORD: ${DB_PASS}
     volumes:
       - database-data:/var/lib/postgresql/data
+  
+  migrations:
+    image: ghcr.io/kukymbr/goose-docker:3.24.2
+    restart: no
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - GOOSE_DRIVER=postgres
+      - GOOSE_DBSTRING=host=${DB_HOST} port=${DB_PORT} user=${DB_USER} password=${DB_PASS} dbname=${DB_NAME}
+      - GOOSE_VERBOSE=true
+      - GOOSE_COMMAND=${GOOSE_COMMAND}
+      - GOOSE_COMMAND_ARG=${GOOSE_COMMAND_ARG}
+    volumes:
+      - ./migrations:/migrations
+
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+
 
 volumes:
   database-data:
