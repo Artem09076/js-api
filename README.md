@@ -1,4 +1,11 @@
-# js-api
+# Поставщик
+Пользователи могут зарегистрироаться, создавать посты и писать к ним комментарии. 
+## Стэк Технологий
+Express+postgres+docker+goose
+## Для запуска 
+```bash
+docker compose up 
+```
 ## Схема базы данных
 ![Схема базы данных](https://github.com/Artem09076/js-api/blob/main/image/db_schema.svg)
 

@@ -36,6 +36,18 @@ class CommentHandlers {
             res.status(500).json({"error": "Internal server error"})            
         }
     }
+
+    async deleteComment(req, res) {
+        try {
+            const commentID = req.params.commentID
+            await this.queries.deleteCommentByID(commentID)
+            res.status(204)
+        } catch (error) {
+            console.log(error);
+            res.status(500).json({"error": "Internal server error"})
+        }
+    }
+
 }
 
 

@@ -99,6 +99,28 @@ class Queries {
     return result.rows[0]
   }
 
+  async deletePostByID(postID) {
+    await this.pool.query(
+      "DELETE FROM posts WHERE id = $1",
+      [postID]
+    )
+  }
+
+  async deleteCommentByID(commentID) {
+    await this.pool.query(
+      "DELETE FROM comments WHERE id = $1",
+      [commentID]
+    )
+  }
+
+  async getPostsByUserID(userID) {
+    const result = await this.pool.query(
+      "SELECT * FROM posts WHERE user_id = $1",
+      [userID]
+    )
+    return result.rows
+  }
+
 }
 
 module.exports = Queries

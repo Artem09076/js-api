@@ -1,0 +1,369 @@
+openapi: 3.0.0
+info:
+  title: Blog API
+  version: 1.0.0
+  description: API для управления постами и комментариями
+
+servers:
+  - url: http://localhost:8080/api
+    description: Development server
+
+components:
+  schemas:
+    Post:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: "string"
+        content:
+          type: string
+          example: "string"
+        user_id:
+          type: integer
+          example: 1
+        created_at:
+          type: string
+          format: date-time
+          example: "2023-12-01T10:00:00.000Z"
+        updated_at:
+          type: string
+          format: date-time
+          example: "2023-12-01T10:00:00.000Z"
+      required:
+        - title
+        - content
+
+    Comment:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        content:
+          type: string
+          example: "string"
+        user_id:
+          type: integer
+          example: 2
+        post_id:
+          type: integer
+          example: 1
+        created_at:
+          type: string
+          format: date-time
+          example: "2023-12-01T11:00:00.000Z"
+      required:
+        - content
+        - post_id
+
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Post not found"
+
+    Success:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+paths:
+  /posts:
+    get:
+      summary: Get all post
+      tags: [Posts]
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          description: Page number
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 5
+          description: Count posts on page
+      responses:
+        '200':
+          description: List of post
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Post'
+
+    post:
+      summary: Create new post
+      tags: [Posts]
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: "Post title"
+                content:
+                  type: string
+                  example: "Po  st content"
+              required:
+                - title
+                - content
+      responses:
+        '201':
+          description: Post create success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  post:
+                    $ref: '#/components/schemas/Post'
+        '401':
+          description: Non authorized
+        '400':
+          description: Bad request
+
+  /posts/{id}:
+    get:
+      summary: Get post by id
+      tags: [Posts]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID post
+      responses:
+        '200':
+          description: Post data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Post'
+        '404':
+          description: Post not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    delete:
+      summary: Delete post
+      tags: [Posts]
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID post
+      responses:
+        '204':
+          description: Post deleted successfully
+        '401':
+          description: Non authorized
+        '403':
+          description: Not permission
+        '404':
+          description: Post not found
+
+  /posts/{postId}/comments:
+    get:
+      summary: Get post comments
+      tags: [Comments]
+      parameters:
+        - name: postId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID post
+      responses:
+        '200':
+          description: Comments list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Comment'
+
+    post:
+      summary: Create comment
+      tags: [Comments]
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: postId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID post
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+                  example: "string"
+              required:
+                - content
+      responses:
+        '201':
+          description: Comment create
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Comment'
+        '401':
+          description: Non authorized
+        '404':
+          description: Post not found
+
+  /comments/{id}:
+    get:
+      summary: Get comment by ID
+      tags: [Comments]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID comment
+      responses:
+        '200':
+          description: Comment data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Comment'
+        '404':
+          description: Comment not found
+
+    
+    delete:
+      summary: Delete comment
+      tags: [Comments]
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID comment
+      responses:
+        '200':
+          description: Comment deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Comment deleted successfully"
+        '401':
+          description: Non authorized
+        '403':
+          description: Not permission
+        '404':
+          description: Comment not found
+
+  /users/{userId}/posts:
+    get:
+      summary: Get all user posts
+      tags: [Users]
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: User id
+      responses:
+        '200':
+          description: List user posts
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Post'
+
+  /users/{userId}/comments:
+    get:
+      summary: Get user comment
+      tags: [Users]
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: User ID
+      responses:
+        '200':
+          description: List user comments
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Comment'
