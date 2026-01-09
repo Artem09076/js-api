@@ -30,7 +30,7 @@ class CommentHandlers {
             const postID = req.params.postID
             const { content } = req.body
             const comment = await this.queries.createComment(content, postID, userID)
-            res.status(200).json({comment: comment})
+            res.status(201).json({comment: comment})
         } catch (error) {
             console.log(error);
             res.status(500).json({"error": "Internal server error"})            

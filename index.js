@@ -22,10 +22,10 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument))
-app.post("/register", (req, res) => authHandlers.register(req, res))
-app.post("/login", (req, res) => authHandlers.login(req, res))
-app.post("/refresh", (req, res) => authHandlers.refreshToken(req, res))
-app.get("/profile", (req, res, next) =>  authMiddleware(req, res, next), (req, res) => authHandlers.getProfile(req, res))
+app.post("/api/register", (req, res) => authHandlers.register(req, res))
+app.post("/api/login", (req, res) => authHandlers.login(req, res))
+app.post("/api/refresh", (req, res) => authHandlers.refreshToken(req, res))
+app.get("/api/profile", (req, res, next) =>  authMiddleware(req, res, next), (req, res) => authHandlers.getProfile(req, res))
 
 app.post('/api/posts', (req, res, next) =>  authMiddleware(req, res, next), (req, res) => postHandlers.createPost(req, res))
 app.get('/api/posts', (req, res) =>  postHandlers.getPosts(req, res))
@@ -43,3 +43,6 @@ app.delete("/api/comments/:commentID", (req, res, next) =>  authMiddleware(req, 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 })
+
+
+module.exports = app

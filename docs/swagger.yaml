@@ -103,6 +103,7 @@ paths:
             maximum: 50
             default: 5
           description: Count posts on page
+
       responses:
         '200':
           description: List of post
@@ -171,7 +172,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  data:
+                  post:
                     $ref: '#/components/schemas/Post'
         '404':
           description: Post not found
@@ -343,27 +344,158 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/Post'
-
-  /users/{userId}/comments:
-    get:
-      summary: Get user comment
-      tags: [Users]
-      parameters:
-        - name: userId
-          in: path
-          required: true
-          schema:
-            type: integer
-          description: User ID
+  /register:
+    post:
+      summary: Регистрация нового пользователя
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - email
+                - password
+              properties:
+                username:
+                  type: string
+                  example: johndoe
+                email:
+                  type: string
+                  format: email
+                  example: johndoe@example.com
+                password:
+                  type: string
+                  minLength: 6
+                  example: secret123
       responses:
         '200':
-          description: List user comments
+          description: Пользователь успешно зарегистрирован
           content:
             application/json:
               schema:
                 type: object
                 properties:
+                  message:
+                    type: string
                   data:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Comment'
+                    type: object
+                    properties:
+                      user:
+                        type: object
+                      tokens:
+                        type: object
+                        properties:
+                          accessToken:
+                            type: string
+                          refreshToken:
+                            type: string
+        '400':
+          description: Ошибка валидации входных данных
+        '409':
+          description: Пользователь уже существует
+        '500':
+          description: Внутренняя ошибка сервера
+
+  /login:
+    post:
+      summary: Авторизация пользователя
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: johndoe@example.com
+                password:
+                  type: string
+                  example: secret123
+      responses:
+        '200':
+          description: Успешная авторизация
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  accessToken:
+                    type: string
+                  refreshToken:
+                    type: string
+        '400':
+          description: Отсутствуют email или пароль
+        '401':
+          description: Неверные email или пароль
+        '500':
+          description: Внутренняя ошибка сервера
+
+  /refresh:
+    post:
+      summary: Обновление access токена
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - refreshToken
+              properties:
+                refreshToken:
+                  type: string
+                  example: eyJhbGciOiJIUzI1NiIs...
+      responses:
+        '200':
+          description: Новый access token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  acessToken:
+                    type: string
+        '400':
+          description: Refresh token не предоставлен
+        '401':
+          description: Неверный или просроченный refresh token
+        '500':
+          description: Внутренняя ошибка сервера
+
+  /profile:
+    get:
+      summary: Получить профиль авторизованного пользователя
+      tags:
+        - Users
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Данные пользователя
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    type: object
+        '401':
+          description: Неавторизован
+        '500':
+          description: Внутренняя ошибка сервера
+
+
+    

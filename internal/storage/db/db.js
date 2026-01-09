@@ -58,11 +58,11 @@ class Queries {
       return result.rows[0]
   }
 
-  async getPosts(page, limit, userID) {
+  async getPosts(page, limit) {
     const offset = limit * (page - 1)
     const result = await this.pool.query(
-      "SELECT * FROM posts WHERE user_id = $1 OFFSET $2 LIMIT $3",
-      [userID, offset, limit]
+      "SELECT * FROM posts OFFSET $1 LIMIT $2",
+      [offset, limit]
     )
     return result.rows
   }

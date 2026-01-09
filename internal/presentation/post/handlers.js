@@ -18,12 +18,8 @@ class PostHandlers {
         try {
             const page = parseInt(req.query.page) || 1
             const limit = parseInt(req.query.limit) || 1
-            const userID = req.query.userID  
-            if (!userID) {
-                res.status(400).json({"error": "User id is required"})
-                return
-            }
-            const result = await this.queries.getPosts(page, limit, userID)
+
+            const result = await this.queries.getPosts(page, limit)
             res.status(200).json({"posts": result})
 
         } catch (error) {
